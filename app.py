@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
 from flask_sqlalchemy import SQLAlchemy
 import sys
 
@@ -21,6 +21,7 @@ db.create_all()
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
     error = False
+    body = {}
     try:
         # description = request.form.get('description', '')
         description = request.get_json()['description']
@@ -28,6 +29,7 @@ def create_todo():
         todo = Todo(description=description)
         db.session.add(todo)
         db.session.commit()
+        body['description'] = todo.description
         # updates the view
         # return redirect(url_for('index'))
     except:
@@ -36,10 +38,10 @@ def create_todo():
         print(sys.exe_info())
     finally:
         db.session.close()
-    if not error:
-        return jsonify({
-            'description': todo.description
-        })
+    if error:
+        abort(400)
+    else:
+        return jsonify(body)
 
 
 # controller
