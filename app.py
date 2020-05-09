@@ -1,10 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import sys
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ngoya:test123@localhost:5432/todoDB'
 db = SQLAlchemy(app)
+
+# migrate - initialize upgrade, downgrade 
+# and generate db migrations
+migrate = Migrate(app, db)
 
 # Model
 class Todo(db.Model):
