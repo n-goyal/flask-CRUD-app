@@ -7,20 +7,24 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ngoya:test123@localhost:5432/todoDB'
 db = SQLAlchemy(app)
 
-# migrate - initialize upgrade, downgrade 
-# and generate db migrations
+# migrate - bootstrp database migrate commands
 migrate = Migrate(app, db)
+
+# commit changes before migrate
+db.create_all()
 
 # Model
 class Todo(db.Model):
     __tablename__ = 'todos'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(), nullable=False)
+    completed = db.Column(db.Boolean, nullable=False,
+    default=False)
 
     def __repr__(self):
         return 'Todo {0} {1}'.format(self.id, self.description)
 
-db.create_all()
+# db.create_all() # Now using migrate
 
 # controller - post request listener
 @app.route('/todos/create', methods=['POST'])
