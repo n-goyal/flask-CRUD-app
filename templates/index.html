@@ -9,20 +9,38 @@
         list-style: none;
         padding: 0;
         margin: 0;
+        width: 200px;
+      }
+      li{
+        clear: both;
+      }
+      li button{
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+        color: red;
+        float: right;
+        cursor: pointer;
+        font-size: 20px;
+        background: none;
       }
     </style>
   </head>
   <body>
     <div id="error" class="hidden">Something went wrong!</div>
-    <form id="form" method="post" action="/todos/create">
+    <form id="form" method="post" action="/todos/checkbox.onchange	create">
       <input type="text" id="description" name="description" />
       <input type="submit" value="Create" />
     </form>
     <ul id="todos">
       {% for d in data %}
-      <li><input class="check-completed" data-id="{{ d.id }}" type="checkbox" {% if d.completed %} checked {% endif %} />{{ d.description }}</li>
+      <li>
+        <input class="check-completed" data-id="{{ d.id }}" type="checkbox" {% if d.completed %} checked {% endif %} />{{ d.description }}
+        <button type="button" class="delete-button" data-id="{{ d.id }}">&cross;</button>
+      </li>
       {% endfor %}
     </ul>
+
     <script>
       const checkboxes = document.querySelectorAll('.check-completed');
       for (let i = 0; i<checkboxes.length; i++){
@@ -48,6 +66,24 @@
           })
         }
       }
+
+      const deleteBtns = document.querySelectorAll('.delete-button');
+      for (let i = 0; i < deleteBtns.length; i++){
+        const btn = deleteBtns[i];
+        btn.onclick = function(e){
+          console.log(e)
+          const todoId = e.target.dataset['id'];
+          fetch('/todos/' + todoId, {
+            method: 'DELETE'
+          })
+          .then(function(){
+            const item = e.target.parentElement;
+            item.remove();
+          })
+        }
+      }
+
+      const descInput = document.getElementById('description')
       document.getElementById('form').onsubmit = function(e) {
         e.preventDefault();
         const desc = descInput.value;
