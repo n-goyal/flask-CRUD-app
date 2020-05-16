@@ -13,16 +13,30 @@ migrate = Migrate(app, db)
 # commit changes before migrate
 db.create_all()
 
-# Model
+# Parent Model
 class Todo(db.Model):
     __tablename__ = 'todos'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(), nullable=False)
     completed = db.Column(db.Boolean, nullable=False,
     default=False)
+    list_id = db.Column(db.Integer, db.ForeignKey('todolists.id'), nullable=False)
+
 
     def __repr__(self):
         return 'Todo {0} {1}'.format(self.id, self.description)
+
+# Child Model
+class TodoList(db.Model):
+    __tablename__ = 'todolists'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), nullable=False)
+    todos = db.relationship('Todo', backref='list', lazy=True)
+
+
+
+
+
 
 # db.create_all() # Now using migrate
 
