@@ -53,7 +53,8 @@ document.getElementById('form').onsubmit = function(e) {
     fetch('/todos/create', {
         method: 'POST',
         body: JSON.stringify({
-        'description': desc,
+            'description': desc,
+            'list_id': active_list.id,
         }),
         headers: {
         'Content-Type': 'application/json',
@@ -62,10 +63,24 @@ document.getElementById('form').onsubmit = function(e) {
     .then(response => response.json())
     .then(jsonResponse => {
         console.log('response', jsonResponse);
-        li = document.createElement('li');
-        li.innerText = desc;
-        document.getElementById('todos').appendChild(li);
-        document.getElementById('error').className = 'hidden';
+        const li = document.createElement('li');
+          const checkbox = document.createElement('input');
+          checkbox.className = 'check-completed';
+          checkbox.type = 'checkbox';
+          checkbox.setAttribute('data-id', jsonResponse.id);
+          li.appendChild(checkbox);
+
+          const text = document.createTextNode(' ' + jsonResponse.description);
+          li.appendChild(text);
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'delete-button';
+          deleteBtn.setAttribute('data-id', jsonResponse.id);
+          deleteBtn.innerHTML = '&cross;';
+          li.appendChild(deleteBtn);
+
+          document.getElementById('todos').appendChild(li);
+          document.getElementById('error').className = 'hidden';
     })
     .catch(function() {
         document.getElementById('error').className = '';

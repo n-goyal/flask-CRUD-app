@@ -48,16 +48,17 @@ def create_todo():
     try:
         # description = request.form.get('description', '')
         description = request.get_json()['description']
+        list_id = request.get_json()['list_id']
         # Instructions for model
         todo = Todo(description=description)
+        active_list = TodoList.query.get(list_id)
+        todo.list = active_list
         db.session.add(todo)
         db.session.commit()
-        body['id'] = todo.id
-        body['completed'] = todo.completed
         body['description'] = todo.description
         # updates the view
         # return redirect(url_for('index'))
-    except:
+    except: 
         error = True
         db.session.rollback()
         print(sys.exe_info())
@@ -97,10 +98,17 @@ def delete_item(todo_id):
     return jsonify({'success': True})
 
 # controller
+@app.route('/lists/<list_id>')
+def get_list_todos(list_id):
+  return render_template('index.html',
+  lists=TodoList.query.all(),
+  active_list=TodoList.query.get(list_id),
+  todos=Todo.query.filter_by(list_id=list_id).order_by('id').all()
+)
+
 @app.route('/')
 def index():
-    # views: index.html
-    return render_template('index.html', data=Todo.query.order_by('id').all())
+  return redirect(url_for('get_list_todos', list_id=1))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
